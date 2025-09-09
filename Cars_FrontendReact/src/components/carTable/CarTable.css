@@ -1,0 +1,60 @@
+table,
+tr,
+td,
+th {
+  border-collapse: collapse;
+  border: 1px solid white;
+  padding: 0.5rem;
+}
+
+/* Responzivní úpravy pro malé displeje */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.8rem;
+  }
+  
+  td, th {
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .btn {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+    margin: 1px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 576px) {
+  table {
+    font-size: 0.7rem;
+  }
+  
+  td, th {
+    padding: 0.15rem 0.25rem;
+  }
+  
+  .btn {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.65rem;
+    margin: 1px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  table {
+    font-size: 0.65rem;
+  }
+  
+  td, th {
+    padding: 0.1rem 0.2rem;
+  }
+  
+  .btn {
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    margin: 0.5px;
+    white-space: nowrap;
+  }
+}
