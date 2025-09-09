@@ -41,30 +41,35 @@ jobs:
         run: |
           rm -rf "$OUT_DIR" && mkdir -p "$OUT_DIR/Cars-BackendPHP"
 
-          # Frontend -> root
+          # Frontend -> kořen
           BUILD_DIR="$FRONTEND_DIR/dist"; if [ ! -d "$BUILD_DIR" ]; then BUILD_DIR="$FRONTEND_DIR/build"; fi
           rsync -a "$BUILD_DIR"/ "$OUT_DIR"/
 
           # Backend -> /Cars-BackendPHP (bez login.php)
           rsync -a --exclude 'login.php' "$BACKEND_DIR"/ "$OUT_DIR/Cars-BackendPHP"/
 
-          # Root .htaccess pro SPA (bez here-docu kvůli YAML zvýraznění)
+          # Root .htaccess – /api/* pošli na /Cars-BackendPHP/*, zbytek je SPA
           printf '%s\n' \
             'RewriteEngine On' \
             '' \
+            '# existující soubory/složky' \
             'RewriteCond %{REQUEST_FILENAME} -f [OR]' \
             'RewriteCond %{REQUEST_FILENAME} -d' \
             'RewriteRule ^ - [L]' \
             '' \
-            'RewriteRule ^Cars-BackendPHP/ - [L]' \
+            '# /api/* -> /Cars-BackendPHP/*' \
+            'RewriteRule ^api/(.*)$ /Cars-BackendPHP/$1 [L]' \
+            '' \
+            '# přímé volání .php nech být' \
             'RewriteCond %{REQUEST_URI} \.php$ [NC]' \
             'RewriteRule ^ - [L]' \
             '' \
+            '# SPA fallback' \
             'RewriteRule . /index.html [L]' \
             > "$OUT_DIR/.htaccess"
 
       - name: Deploy to Endora (FTPS)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
