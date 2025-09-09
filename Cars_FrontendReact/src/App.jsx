@@ -18,8 +18,9 @@ function App() {
 
   //Ziskame data z backendu pomoci AXIOS
   const getCars = () => {
+    const apiUrl = import.meta.env.DEV ? "/api" : "/Cars-BackendPHP";
     axios
-      .get("/api/?action=getAll")
+      .get(`${apiUrl}/?action=getAll`)
       .then((response) => {
         if (Array.isArray(response.data)) {
           setCars(response.data);
@@ -42,9 +43,10 @@ function App() {
     //http://localhost/api/?action=getSpec&ids=5,7,8
 
     const param = ids.join();
+    const apiUrl = import.meta.env.DEV ? "/api" : "/Cars-BackendPHP";
     axios
       .get(
-        `/api/?action=getSpec&ids=${param}`
+        `${apiUrl}/?action=getSpec&ids=${param}`
       )
       .then((response) => {
         if (Array.isArray(response.data)) {
@@ -60,8 +62,9 @@ function App() {
 
   //Vymazani auta
   const deleteCar = (id) => {
+    const apiUrl = import.meta.env.DEV ? "/api" : "/Cars-BackendPHP";
     axios
-      .delete(`/api/${id}`)
+      .delete(`${apiUrl}/${id}`)
       .then((response) => {
         console.log(response.data);
         getCars();
@@ -74,8 +77,9 @@ function App() {
 
   //Pridani noveho auta
   const insertCar = (car) => {
+    const apiUrl = import.meta.env.DEV ? "/api" : "/Cars-BackendPHP";
     axios
-      .post("/api/", car)
+      .post(`${apiUrl}/`, car)
       .then((response) => {
         console.log(response.data);
         getCars();
@@ -89,8 +93,9 @@ function App() {
 
   //Uprava auta
   const updateCar = (car) => {
+    const apiUrl = import.meta.env.DEV ? "/api" : "/Cars-BackendPHP";
     axios
-      .put("/api/", car)
+      .put(`${apiUrl}/`, car)
       .then((response) => {
         console.log(response.data);
         getCars();
