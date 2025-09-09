@@ -1,0 +1,61 @@
+# ===========================================
+# Cars Management System - .gitignore
+# ===========================================
+
+# ===========================================
+# Backend (PHP) specifické soubory
+# ===========================================
+
+# Citlivé soubory s přihlašovacími údaji
+Cars-BackendPHP/login.php
+
+# PHP dočasné soubory
+*.tmp
+*.log
+
+# ===========================================
+# Frontend (React) specifické soubory
+# ===========================================
+
+# Ignorovat nepotřebné soubory a složky
+Cars_FrontendReact/node_modules/
+Cars_FrontendReact/eslint.config.js
+
+# Ignorovat cache a dočasné soubory
+Cars_FrontendReact/.cache/
+Cars_FrontendReact/.parcel-cache/
+Cars_FrontendReact/.eslintcache
+*.tmp
+*.temp
+
+# ===========================================
+# Univerzální soubory
+# ===========================================
+
+# Ignorovat editor soubory
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ignorovat OS soubory
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Ignorovat environment soubory
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Povolit všechny soubory v src a dist složkách (pro deploy)
+!Cars_FrontendReact/src/
+!Cars_FrontendReact/src/**
+!Cars_FrontendReact/dist/
+!Cars_FrontendReact/dist/**
