@@ -1,0 +1,80 @@
+name: Deploy to Endora (Cars)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "Cars_FrontendReact/**"
+      - "Cars-BackendPHP/**"
+      - ".github/workflows/deploy.yml"
+
+concurrency:
+  group: deploy-endora
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_DIR: Cars_FrontendReact
+      BACKEND_DIR: Cars-BackendPHP
+      OUT_DIR: deploy
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ${{ env.FRONTEND_DIR }}/package-lock.json
+
+      - name: Build React (Vite)
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare deploy folder
+        run: |
+          rm -rf "$OUT_DIR" && mkdir -p "$OUT_DIR/Cars-BackendPHP"
+
+          # Frontend -> root
+          BUILD_DIR="$FRONTEND_DIR/dist"; if [ ! -d "$BUILD_DIR" ]; then BUILD_DIR="$FRONTEND_DIR/build"; fi
+          rsync -a "$BUILD_DIR"/ "$OUT_DIR"/
+
+          # Backend -> /Cars-BackendPHP (bez login.php)
+          rsync -a --exclude 'login.php' "$BACKEND_DIR"/ "$OUT_DIR/Cars-BackendPHP"/
+
+          # Root .htaccess pro SPA (bez here-docu kvůli YAML zvýraznění)
+          printf '%s\n' \
+            'RewriteEngine On' \
+            '' \
+            'RewriteCond %{REQUEST_FILENAME} -f [OR]' \
+            'RewriteCond %{REQUEST_FILENAME} -d' \
+            'RewriteRule ^ - [L]' \
+            '' \
+            'RewriteRule ^Cars-BackendPHP/ - [L]' \
+            'RewriteCond %{REQUEST_URI} \.php$ [NC]' \
+            'RewriteRule ^ - [L]' \
+            '' \
+            'RewriteRule . /index.html [L]' \
+            > "$OUT_DIR/.htaccess"
+
+      - name: Deploy to Endora (FTPS)
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ${{ env.OUT_DIR }}/
+          server-dir: ${{ secrets.FTP_DIR }}Cars/
+          exclude: |
+            **/.git*
+            **/node_modules/**
+            **/.github/**
+            **/tests/**
