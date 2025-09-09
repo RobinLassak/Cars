@@ -33,6 +33,10 @@ jobs:
 
       - name: Build React (Vite)
         working-directory: ${{ env.FRONTEND_DIR }}
+        # pokud nasazuješ do /Cars/ podadresáře a potřebuješ base,
+        # odkomentuj následující env a ve vite.config.js měj base: process.env.VITE_BASE ?? '/'
+        # env:
+        #   VITE_BASE: /Cars/
         run: |
           npm ci
           npm run build
@@ -41,14 +45,14 @@ jobs:
         run: |
           rm -rf "$OUT_DIR" && mkdir -p "$OUT_DIR/Cars-BackendPHP"
 
-          # Frontend -> kořen
+          # Frontend -> kořen deploy balíčku
           BUILD_DIR="$FRONTEND_DIR/dist"; if [ ! -d "$BUILD_DIR" ]; then BUILD_DIR="$FRONTEND_DIR/build"; fi
           rsync -a "$BUILD_DIR"/ "$OUT_DIR"/
 
           # Backend -> /Cars-BackendPHP (bez login.php)
           rsync -a --exclude 'login.php' "$BACKEND_DIR"/ "$OUT_DIR/Cars-BackendPHP"/
 
-          # Root .htaccess – /api/* pošli na /Cars-BackendPHP/*, zbytek je SPA
+          # Root .htaccess – přepiš /api/* na /Cars-BackendPHP/*, zbytek je SPA
           printf '%s\n' \
             'RewriteEngine On' \
             '' \
@@ -68,18 +72,31 @@ jobs:
             'RewriteRule . /index.html [L]' \
             > "$OUT_DIR/.htaccess"
 
-      - name: Deploy to Endora (FTPS)
-        uses: SamKirkland/FTP-Deploy-Action@4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          local-dir: ${{ env.OUT_DIR }}/
-          server-dir: ${{ secrets.FTP_DIR }}Cars/
-          exclude: |
-            **/.git*
-            **/node_modules/**
-            **/.github/**
-            **/tests/**
+      # ====== DEPLOY PŘES LFTP (FTPS) – bez externí akce ======
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Upload via lftp (FTPS)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          REMOTE_DIR: ${{ secrets.FTP_DIR }}Cars/
+          LOCAL_DIR: ${{ env.OUT_DIR }}/
+        run: |
+          lftp -e "
+            set ftp:passive-mode on;
+            set ftp:ssl-force true;
+            set ftp:ssl-protect-data true;
+            set ssl:verify-certificate false;
+            set net:max-retries 2;
+            set net:timeout 30;
+            open -u ${FTP_USERNAME},${FTP_PASSWORD} ${FTP_SERVER};
+            mkdir -p ${REMOTE_DIR};
+            mirror -Rnv ${LOCAL_DIR} ${REMOTE_DIR} \
+              --exclude-glob .git* \
+              --exclude-glob node_modules \
+              --exclude-glob .github \
+              --exclude-glob tests;
+            bye
+          "
