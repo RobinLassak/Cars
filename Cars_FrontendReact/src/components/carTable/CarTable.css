@@ -61,7 +61,12 @@ th {
     white-space: nowrap;
   }
   
-  /* Zkrácení textu tlačítek na velmi malých displejích */
+  /* Vertikální layout tlačítek na malých displejích */
+  .d-flex {
+    flex-direction: column !important;
+    gap: 0.2rem !important;
+  }
+  
   .btn-sm {
     min-width: 50px;
   }
