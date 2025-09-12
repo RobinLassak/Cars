@@ -9,52 +9,60 @@ th {
 
 /* Responzivní úpravy pro malé displeje */
 @media (max-width: 768px) {
-  table {
-    font-size: 0.8rem;
+  .table-responsive {
+    font-size: 0.85rem;
   }
   
-  td, th {
-    padding: 0.2rem 0.4rem;
+  .table td, .table th {
+    padding: 0.3rem 0.4rem;
   }
   
-  .btn {
-    padding: 0.2rem 0.4rem;
-    font-size: 0.7rem;
-    margin: 1px;
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
     white-space: nowrap;
   }
 }
 
 @media (max-width: 576px) {
-  table {
+  .table-responsive {
+    font-size: 0.8rem;
+  }
+  
+  .table td, .table th {
+    padding: 0.25rem 0.3rem;
+  }
+  
+  .btn-sm {
+    padding: 0.2rem 0.4rem;
     font-size: 0.7rem;
-  }
-  
-  td, th {
-    padding: 0.15rem 0.25rem;
-  }
-  
-  .btn {
-    padding: 0.15rem 0.3rem;
-    font-size: 0.65rem;
-    margin: 1px;
     white-space: nowrap;
+  }
+  
+  /* Skrytí sloupce "Najeto km" na malých displejích */
+  .table th:nth-child(4),
+  .table td:nth-child(4) {
+    display: none;
   }
 }
 
 @media (max-width: 480px) {
-  table {
+  .table-responsive {
+    font-size: 0.75rem;
+  }
+  
+  .table td, .table th {
+    padding: 0.2rem 0.25rem;
+  }
+  
+  .btn-sm {
+    padding: 0.15rem 0.3rem;
     font-size: 0.65rem;
-  }
-  
-  td, th {
-    padding: 0.1rem 0.2rem;
-  }
-  
-  .btn {
-    padding: 0.1rem 0.25rem;
-    font-size: 0.6rem;
-    margin: 0.5px;
     white-space: nowrap;
+  }
+  
+  /* Zkrácení textu tlačítek na velmi malých displejích */
+  .btn-sm {
+    min-width: 50px;
   }
 }
